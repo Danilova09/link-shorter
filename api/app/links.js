@@ -1,12 +1,20 @@
 const express = require('express');
-const mongoDb = require('../mongoDb');
+const Link = require("../models/Link");
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        const db = mongoDb.getDb();
-        const results = await db.collection('links').find().toArray();
+        const results = await Link.find();
         res.send(results);
+    } catch (e) {
+        next(e);
+    }
+});
+
+router.get('/:shortUrl', async (req, res, next) => {
+    try {
+        const link = await Link.findOne({shortUrl: req.params.shortUrl});
+        res.send(link);
     } catch (e) {
         next(e);
     }
@@ -14,18 +22,16 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-
         console.log(req.body);
-
-        const link = {
+        const linkData = {
             _id: req.body.id,
             shortUrl: req.body.shortUrl,
             originalUrl: req.body.originalUrl,
         }
 
-        const db = mongoDb.getDb();
-        const result = await db.collection('links').insertOne(link);
-        res.send({message: 'Created link ', link: result});
+        const link = new Link(linkData);
+        await link.save();
+        res.send({message: 'Created link ', link: link});
     } catch (e) {
         next(e);
     }
