@@ -1,14 +1,25 @@
 <div class="main-block">
   <h1 class="main-title">Shorten your link!</h1>
   <form (ngSubmit)="onSubmit()" #form="ngForm">
-    <mat-form-field appearance="outline" style="width: 100%">
-      <mat-label>Your url</mat-label>
-      <input type="text" name="originalUrl" ngModel required matInput>
-    </mat-form-field>
-    <button mat-raised-button color="primary">SHORTEN</button>
+    <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start">
+      <mat-form-field appearance="outline" style="width: 100%">
+        <mat-label *ngIf="form.valid">Your url</mat-label>
+        <mat-label *ngIf="originalUrl.touched && originalUrl.errors?.['required']">URL is required</mat-label>
+        <mat-label *ngIf="originalUrl.touched && originalUrl.errors?.['url'] && !originalUrl.errors?.['required']">Enter
+          valid URL
+        </mat-label>
+        <input type="text" name="originalUrl"
+               #originalUrl="ngModel"
+               appUrl
+               ngModel required matInput>
+      </mat-form-field>
+    </div>
+    <button mat-raised-button color="primary" [disabled]="addingLink">SHORTEN</button>
   </form>
   <div class="short-link-block" style="margin-top: 50px">
     <h2>Your link now looks like this:</h2>
-    <a href="https://google.com" target="_blank">http://google.com</a>
+    <a [href]="['http://localhost:8000/links/' + shortUrl]"
+       target="_blank">http://localhost:8000/links/{{ shortUrl }}</a>
   </div>
 </div>
+

@@ -13,6 +13,7 @@ app.use('/links', links);
 
 const run = async () => {
     await mongoose.connect(config.mongo.db, config.mongo.options);
+
     app.listen(port, () => {
         console.log(`Server is listening port ${port}...`)
     });

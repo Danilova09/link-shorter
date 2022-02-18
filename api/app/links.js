@@ -4,8 +4,8 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        const results = await Link.find();
-        res.send(results);
+        const links = await Link.find();
+        res.send(links);
     } catch (e) {
         next(e);
     }
@@ -14,7 +14,10 @@ router.get('/', async (req, res, next) => {
 router.get('/:shortUrl', async (req, res, next) => {
     try {
         const link = await Link.findOne({shortUrl: req.params.shortUrl});
-        res.send(link);
+        if (!link) {
+            return res.status(404).send({error: 'Not found'});
+        }
+        return res.status(301).redirect(link['originalUrl']);
     } catch (e) {
         next(e);
     }
@@ -22,16 +25,17 @@ router.get('/:shortUrl', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        console.log(req.body);
+        if (!req.body.shortUrl || !req.body.originalUrl) {
+            return res.status(400).send({error: 'Fill in required fields'});
+        }
         const linkData = {
             _id: req.body.id,
             shortUrl: req.body.shortUrl,
             originalUrl: req.body.originalUrl,
         }
-
         const link = new Link(linkData);
         await link.save();
-        res.send({message: 'Created link ', link: link});
+        return res.send(link);
     } catch (e) {
         next(e);
     }
